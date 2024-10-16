@@ -1,3 +1,5 @@
+name: Build and Deploy
+
 on:
   push:
 
@@ -16,21 +18,17 @@ jobs:
         run: rustup --version
       - name: Compile Rust to WASM
         run: rustup target add wasm32-unknown-unknown
-        
+
   install-Trunk:
     needs: setup-rust
     runs-on: ubuntu-latest
     steps:
       - name: use trunk action
-      - uses: jetli/trunk-action@v0.5.0
-      
+        uses: jetli/trunk-action@v0.5.0
+
   build:
-   needs: [setup-rust, install-Trunk]
-   runs-on: ubuntu-latest
-   steps:
-     - name: build
-       run: trunk build --release
-
-
-
-
+    needs: [setup-rust, install-Trunk]
+    runs-on: ubuntu-latest
+    steps:
+      - name: build
+        run: trunk build --release
