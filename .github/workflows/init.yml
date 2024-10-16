@@ -27,7 +27,7 @@ jobs:
       - uses: actions/upload-artifact@v4
         with:
           name: rustapp
-          path: build/rust/
+          path: dist/
 
   get-version:
     uses: shiipou/github-actions/.github/workflows/get-version.yml@main
@@ -45,7 +45,7 @@ jobs:
         uses: actions/download-artifact@v4.1.8
         with:
           name: rustapp
-          path: build/rust/
+          path: dist/
       - name: Create GitHub Release
         env:
           VERSION: "${{ needs.get-version.outputs.version }}"
@@ -53,7 +53,7 @@ jobs:
           COMMIT: "${{ github.sha }}"
           GH_TOKEN: "${{ github.token }}"
         run: |
-          gh release create --repo $REPO --target $COMMIT $VERSION build/*
+          gh release create --repo $REPO --target $COMMIT $VERSION dist/*
 
 
 
