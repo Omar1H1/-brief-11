@@ -12,3 +12,9 @@ jobs:
           toolchain: nightly
       - name: Check Rust version
         run: rustc --version
+      - name: Check Rust Up version
+        run: rustup --version
+
+
+
+
