@@ -3,6 +3,9 @@ name: Build and Deploy
 on:
   push:
 
+permissions:
+  contents: write
+
 jobs:
   setup-rust:
     runs-on: ubuntu-latest
