@@ -51,7 +51,7 @@ jobs:
           path: dist/
       - name: zip dist
       ## test zip
-        run: zip -r rustapp.zip dist/
+        run: zip -r rustapp.zip dist/*
       - name: Create GitHub Release
         env:
           VERSION: "${{ needs.get-version.outputs.version }}"
@@ -59,8 +59,7 @@ jobs:
           COMMIT: "${{ github.sha }}"
           GH_TOKEN: "${{ github.token }}"
         run: |
-          gh release create --repo $REPO --target $COMMIT $VERSION dist/*
-
+          gh release create --repo $REPO --target $COMMIT $VERSION rustapp.zip
 
 
 
