@@ -52,13 +52,7 @@ jobs:
 
         run: |
 
-          echo "Version: ${{ needs.get-version.outputs.version }}"
-
-          echo "Changelogs: ${{ needs.get-version.outputs.changelogs }}"
-
-          echo "Is Prerelease: ${{ needs.get-version.outputs.is-prerelease }}"
-
-          echo "Will Release: ${{ needs.get-version.outputs.will-release }}"
+          echo "Changelogs: ${{ needs.get-version.outputs.changelogs }}" > changelog.txt
         
       - name: zip dist
       ## test zip
@@ -70,7 +64,7 @@ jobs:
           COMMIT: "${{ github.sha }}"
           GH_TOKEN: "${{ github.token }}"
         run: |
-          gh release create --repo $REPO --target $COMMIT $VERSION rustapp.zip
+          gh release create --repo $REPO --target $COMMIT $VERSION rustapp.zip changelog.txt
 
 
 
