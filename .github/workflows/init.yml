@@ -64,7 +64,7 @@ jobs:
           COMMIT: "${{ github.sha }}"
           GH_TOKEN: "${{ github.token }}"
         run: |
-          if [needs.get-version.outputs.is-prerelease]
+          if [ "${{ needs.get-version.outputs.is-prereleas }}" == "true" ]
           then
           gh prerelease create --repo $REPO --target $COMMIT -F changelog.txt $VERSION rustapp.zip
           else 
