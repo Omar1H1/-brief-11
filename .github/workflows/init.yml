@@ -14,7 +14,11 @@ jobs:
         run: rustc --version
       - name: Check Rust Up version
         run: rustup --version
+      - name: Compile Rust to WASM
+        run: rustup target add wasm32-unknown-unknown
 
+
+        
 
 
 
