@@ -36,27 +36,25 @@ jobs:
     uses: shiipou/github-actions/.github/workflows/get-version.yml@main
     with:
       release-branches: '^(main)$'
-      
+
   release:
     name: Release
     runs-on: ubuntu-latest
     needs: [get-version, setup-rust]
+    strategy:
+      matrix:
+        os: [linux, windows, macos]
     steps:
       - name: Download artifacts
         uses: actions/download-artifact@v4.1.8
         with:
           name: rustapp
           path: dist/
-          
-      - name: Print version
 
+      - name: Create zip file
         run: |
-
-          echo "Changelogs: ${{ needs.get-version.outputs.changelogs }}" > changelog.txt
-        
-      - name: zip dist
-      ## test zip
-        run: zip -r rustapp.zip dist/*
+          zip -r rustapp-${{ matrix.os }}.zip dist/*
+          
       - name: Create GitHub Release
         env:
           VERSION: "${{ needs.get-version.outputs.version }}"
@@ -66,12 +64,7 @@ jobs:
         run: |
           if [ "${{ needs.get-version.outputs.is-prereleas }}" == "true" ]
           then
-          gh prerelease create --repo $REPO --target $COMMIT -F changelog.txt $VERSION rustapp.zip
+            gh prerelease create --repo $REPO --target $COMMIT -F changelog.txt $VERSION rustapp-linux.zip rustapp-windows.zip rustapp-macos.zip
           else 
-          gh release create --repo $REPO --target $COMMIT -F changelog.txt $VERSION rustapp.zip
+            gh release create --repo $REPO --target $COMMIT -F changelog.txt $VERSION rustapp-linux.zip rustapp-windows.zip rustapp-macos.zip
           fi
-
-
-
-
-
