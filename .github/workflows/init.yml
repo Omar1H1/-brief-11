@@ -37,24 +37,53 @@ jobs:
     with:
       release-branches: '^(main)$'
 
-  release:
-    name: Release
-    runs-on: ubuntu-latest
+  build-and-zip:
+    name: Build and Zip for ${{ matrix.os }}
+    runs-on: ${{ matrix.os }}
     needs: [get-version, setup-rust]
     strategy:
       matrix:
-        os: [linux, windows, macos]
+        os: [ubuntu-latest, windows-latest, macos-latest]
     steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
       - name: Download artifacts
         uses: actions/download-artifact@v4.1.8
         with:
           name: rustapp
           path: dist/
-
       - name: Create zip file
         run: |
           zip -r rustapp-${{ matrix.os }}.zip dist/*
-          
+      - name: Upload zip file
+        uses: actions/upload-artifact@v4
+        with:
+          name: rustapp-${{ matrix.os }}
+          path: rustapp-${{ matrix.os }}.zip
+
+  release:
+    name: Release
+    runs-on: ubuntu-latest
+    needs: [get-version, setup-rust, build-and-zip]
+    steps:
+      - name: Download Linux zip
+        uses: actions/download-artifact@v4.1.8
+        with:
+          name: rustapp-ubuntu-latest
+          path: ./linux/
+      - name: Download Windows zip
+        uses: actions/download-artifact@v4.1.8
+        with:
+          name: rustapp-windows-latest
+          path: ./windows/
+      - name: Download macOS zip
+        uses: actions/download-artifact@v4.1.8
+        with:
+          name: rustapp-macos-latest
+          path: ./macos/
+      - name: Print version
+        run: |
+          echo "Changelogs: ${{ needs.get-version.outputs.changelogs }}" > changelog.txt
       - name: Create GitHub Release
         env:
           VERSION: "${{ needs.get-version.outputs.version }}"
@@ -62,9 +91,8 @@ jobs:
           COMMIT: "${{ github.sha }}"
           GH_TOKEN: "${{ github.token }}"
         run: |
-          if [ "${{ needs.get-version.outputs.is-prereleas }}" == "true" ]
-          then
-            gh prerelease create --repo $REPO --target $COMMIT -F changelog.txt $VERSION rustapp-linux.zip rustapp-windows.zip rustapp-macos.zip
+          if [ "${{ needs.get-version.outputs.is-prereleas }}" == "true" ]; then
+            gh prerelease create --repo $REPO --target $COMMIT -F changelog.txt $VERSION rustapp-ubuntu-latest.zip rustapp-windows-latest.zip rustapp-macos-latest.zip
           else 
-            gh release create --repo $REPO --target $COMMIT -F changelog.txt $VERSION rustapp-linux.zip rustapp-windows.zip rustapp-macos.zip
+            gh release create --repo $REPO --target $COMMIT -F changelog.txt $VERSION rustapp-ubuntu-latest.zip rustapp-windows-latest.zip rustapp-macos-latest.zip
           fi
