@@ -10,5 +10,5 @@ jobs:
         uses: actions-rs/toolchain@v1
         with:
           toolchain: nightly
-      - run: rustc -v
-      
+      - name: Check Rust version
+        run: rustc --version
