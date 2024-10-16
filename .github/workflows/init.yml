@@ -52,14 +52,23 @@ jobs:
         with:
           name: rustapp
           path: dist/
-      - name: Create zip file
+      - name: Create archive file
         run: |
-          zip -r rustapp-${{ matrix.os }}.zip dist/*
-      - name: Upload zip file
+          if [ "${{ matrix.os }}" == "ubuntu-latest" ]; then
+            tar -czvf rustapp-linux.tar.gz -C dist .
+          elif [ "${{ matrix.os }}" == "windows-latest" ]; then
+            powershell Compress-Archive -Path dist\* -DestinationPath rustapp-windows.zip
+          else
+            zip -r rustapp-macos.zip dist/*
+          fi
+      - name: Upload archive file
         uses: actions/upload-artifact@v4
         with:
           name: rustapp-${{ matrix.os }}
-          path: rustapp-${{ matrix.os }}.zip
+          path: |
+            rustapp-linux.tar.gz
+            rustapp-windows.zip
+            rustapp-macos.zip
 
   release:
     name: Release
