@@ -50,6 +50,7 @@ jobs:
           name: rustapp
           path: dist/
       - name: zip dist
+      ## test zip
         run: zip -r rustapp.zip dist/
       - name: Create GitHub Release
         env:
