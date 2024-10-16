@@ -57,7 +57,7 @@ jobs:
           if [ "${{ matrix.os }}" == "ubuntu-latest" ]; then
             tar -czvf rustapp-linux.tar.gz -C dist .
           elif [ "${{ matrix.os }}" == "windows-latest" ]; then
-            powershell Compress-Archive -Path dist\* -DestinationPath rustapp-windows.zip
+            powershell Compress-Archive -Path dist\* -DestinationPath rustapp-windows.zip -Force
           else
             zip -r rustapp-macos.zip dist/*
           fi
