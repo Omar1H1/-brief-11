@@ -36,8 +36,6 @@ jobs:
     uses: shiipou/github-actions/.github/workflows/get-version.yml@main
     with:
       release-branches: '^(main)$'
-
-
       
   release:
     name: Release
@@ -49,6 +47,19 @@ jobs:
         with:
           name: rustapp
           path: dist/
+          
+      - name: Print version
+
+        run: |
+
+          echo "Version: ${{ needs.get-version.outputs.version }}"
+
+          echo "Changelogs: ${{ needs.get-version.outputs.changelogs }}"
+
+          echo "Is Prerelease: ${{ needs.get-version.outputs.is-prerelease }}"
+
+          echo "Will Release: ${{ needs.get-version.outputs.will-release }}"
+        
       - name: zip dist
       ## test zip
         run: zip -r rustapp.zip dist/*
