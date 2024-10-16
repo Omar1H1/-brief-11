@@ -52,7 +52,7 @@ jobs:
         with:
           name: rustapp
           path: dist/
-      - name: Create archive file
+      - name: Create archive file for Linux & Mac
         run: |
           if [ "${{ matrix.os }}" == "ubuntu-latest" ]; then
             tar -czvf rustapp-linux.tar.gz -C dist .
@@ -61,6 +61,14 @@ jobs:
           else
             zip -r rustapp-macos.zip dist/*
           fi
+
+        shell: bash
+
+      - name: Create archive file for Windows
+        if: matrix.os == 'windows-latest'
+        run: |
+          Compress-Archive -Path dist\* -DestinationPath rustapp-windows.zip
+        shell: pwsh
       - name: Upload archive file
         uses: actions/upload-artifact@v4
         with:
