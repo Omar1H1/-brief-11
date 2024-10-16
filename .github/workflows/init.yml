@@ -16,9 +16,12 @@ jobs:
         run: rustup --version
       - name: Compile Rust to WASM
         run: rustup target add wasm32-unknown-unknown
-
-
         
-
-
-
+  install-Trunk:
+    needs: setup-rust
+    runs-on: ubuntu-latest
+    steps:
+      - name: Install Trunk
+        run: cargo install trunk wasm-bindgen-cli
+      - name: Install Trunk
+        run: cargo install trunk wasm-bindgen-cli
