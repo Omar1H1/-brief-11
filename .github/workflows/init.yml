@@ -25,6 +25,8 @@ jobs:
     steps:
       - name: use trunk action
         uses: jetli/trunk-action@v0.5.0
+      - name: Verify Trunk Version
+        run: trunk --version
 
   build:
     needs: [setup-rust, install-Trunk]
