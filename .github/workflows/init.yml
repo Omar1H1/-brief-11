@@ -49,6 +49,8 @@ jobs:
         with:
           name: rustapp
           path: dist/
+      - name: zip dist
+        run: zip -r rustapp.zip dist/
       - name: Create GitHub Release
         env:
           VERSION: "${{ needs.get-version.outputs.version }}"
