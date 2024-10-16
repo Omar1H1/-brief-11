@@ -69,6 +69,7 @@ jobs:
         run: |
           Compress-Archive -Path dist\* -DestinationPath rustapp-windows.zip
         shell: pwsh
+        continue-on-error: true 
       - name: Upload archive file
         uses: actions/upload-artifact@v4
         with:
