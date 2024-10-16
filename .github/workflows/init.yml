@@ -21,9 +21,9 @@ jobs:
     needs: setup-rust
     runs-on: ubuntu-latest
     steps:
-      - name: Install Trunk
-        run: cargo install trunk wasm-bindgen-cli
-
+      - name: use trunk action
+      - uses: jetli/trunk-action@v0.5.0
+      
   build:
    needs: [setup-rust, install-Trunk]
    runs-on: ubuntu-latest
