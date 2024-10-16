@@ -1,0 +1,14 @@
+on:
+  push:
+
+jobs:
+  setup-rust:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - name: Install latest nightly
+        uses: actions-rs/toolchain@v1
+        with:
+          toolchain: nightly
+      - run: rustc -v
+      
