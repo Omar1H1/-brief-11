@@ -23,5 +23,14 @@ jobs:
     steps:
       - name: Install Trunk
         run: cargo install trunk wasm-bindgen-cli
-      - name: Install Trunk
-        run: cargo install trunk wasm-bindgen-cli
+
+  build:
+   needs: [setup-rust, install-Trunk]
+   runs-on: ubuntu-latest
+   steps:
+     - name: build
+       run: trunk build --release
+
+
+
+
