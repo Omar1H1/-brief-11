@@ -64,7 +64,7 @@ jobs:
           COMMIT: "${{ github.sha }}"
           GH_TOKEN: "${{ github.token }}"
         run: |
-          gh release create --repo $REPO --target $COMMIT $VERSION rustapp.zip changelog.txt
+          gh release create --repo $REPO --target $COMMIT -F changelog.txt $VERSION rustapp.zip
 
 
 
