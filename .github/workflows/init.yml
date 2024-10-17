@@ -10,7 +10,7 @@ jobs:
   setup-rust:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
       - name: Install latest nightly
         uses: actions-rs/toolchain@v1
         with:
@@ -21,11 +21,11 @@ jobs:
         run: rustup --version
       - name: Compile Rust to WASM
         run: rustup target add wasm32-unknown-unknown
-      - name: use trunk action
+      - name: Use Trunk Action
         uses: jetli/trunk-action@v0.5.0
       - name: Verify Trunk Version
         run: trunk --version
-      - name: build
+      - name: Build
         run: trunk build --release
       - uses: actions/upload-artifact@v4
         with:
@@ -46,30 +46,22 @@ jobs:
         os: [ubuntu-latest, windows-latest, macos-latest]
     steps:
       - name: Checkout code
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
       - name: Download artifacts
-        uses: actions/download-artifact@v4.1.8
+        uses: actions/download-artifact@v4
         with:
           name: rustapp
           path: dist/
-      - name: Create archive file for Linux & Mac
+      - name: Create archive file
         run: |
           if [ "${{ matrix.os }}" == "ubuntu-latest" ]; then
             tar -czvf rustapp-linux.tar.gz -C dist .
           elif [ "${{ matrix.os }}" == "macos-latest" ]; then
             zip -r rustapp-macos.zip dist/*
-          else
-            # do rien
+          elif [ "${{ matrix.os }}" == "windows-latest" ]; then
+            Compress-Archive -Path dist\* -DestinationPath rustapp-windows.zip
           fi
-
-        shell: bash
-
-      - name: Create archive file for Windows
-        if: matrix.os == 'windows-latest'
-        run: |
-          Compress-Archive -Path dist\* -DestinationPath rustapp-windows.zip
-        shell: pwsh
-        continue-on-error: true 
+        shell: ${{ matrix.os == 'windows-latest' && 'pwsh' || 'bash' }}
       - name: Upload archive file
         uses: actions/upload-artifact@v4
         with:
@@ -85,10 +77,10 @@ jobs:
     needs: [get-version, setup-rust, build-and-zip]
     steps:
       - name: Download zip
-        uses: actions/download-artifact@v4.1.8
+        uses: actions/download-artifact@v4
         with:
-          name: rustapp-ubuntu-latest
-          path: ./${{ matrix.os }}/
+          name: rustapp-${{ matrix.os }}
+          path: ./
       - name: Print version
         run: |
           echo "Changelogs: ${{ needs.get-version.outputs.changelogs }}" > changelog.txt
@@ -97,15 +89,10 @@ jobs:
           VERSION: "${{ needs.get-version.outputs.version }}"
           REPO: "${{ github.repository }}"
           COMMIT: "${{ github.sha }}"
-          GH_TOKEN: "${{ github.token }}"
+          GH_TOKEN: "${{ secrets.GITHUB_TOKEN }}"
         run: |
           if [ "${{ needs.get-version.outputs.is-prereleas }}" == "true" ]; then
-            gh prerelease create --repo $REPO --target $COMMIT -F changelog.txt $VERSION rustapp-ubuntu-latest.zip rustapp-windows-latest.zip rustapp-macos-latest.zip
+            gh prerelease create --repo $REPO --target $COMMIT -F changelog.txt $VERSION rustapp-linux.tar.gz rustapp-macos.zip rustapp-windows.zip
           else 
-            gh release create --repo $REPO --target $COMMIT -F changelog.txt $VERSION rustapp-ubuntu-latest.zip rustapp-windows-latest.zip rustapp-macos-latest.zip
+            gh release create --repo $REPO --target $COMMIT -F changelog.txt $VERSION rustapp-linux.tar.gz rustapp-macos.zip rustapp-windows.zip
           fi
-
-
-
-
-
