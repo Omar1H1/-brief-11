@@ -52,24 +52,41 @@ jobs:
         with:
           name: rustapp
           path: dist/
-      - name: Create archive file
+      - name: Create archive file for Linux
+        if: matrix.os == 'ubuntu-latest'
         run: |
-          if [ "${{ matrix.os }}" == "ubuntu-latest" ]; then
-            tar -czvf rustapp-linux.tar.gz -C dist .
-          elif [ "${{ matrix.os }}" == "macos-latest" ]; then
-            zip -r rustapp-macos.zip dist/*
-          elif [ "${{ matrix.os }}" == "windows-latest" ]; then
-            Compress-Archive -Path dist\* -DestinationPath rustapp-windows.zip
-          fi
-        shell: ${{ matrix.os == 'windows-latest' && 'pwsh' || 'bash' }}
-      - name: Upload archive file
+          tar -czvf rustapp-linux.tar.gz -C dist .
+        shell: bash
+      - name: Create archive file for macOS
+        if: matrix.os == 'macos-latest'
+        run: |
+          zip -r rustapp-macos.zip dist/*
+        shell: bash
+      - name: Create archive file for Windows
+        if: matrix.os == 'windows-latest'
+        run: |
+          Compress-Archive -Path dist\* -DestinationPath rustapp-windows.zip
+        shell: pwsh
+      - name: Upload Linux archive
+        if: matrix.os == 'ubuntu-latest'
         uses: actions/upload-artifact@v4
         with:
-          name: rustapp-${{ matrix.os }}
-          path: |
-            rustapp-linux.tar.gz
-            rustapp-windows.zip
-            rustapp-macos.zip
+          name: rustapp-linux
+          path: rustapp-linux.tar.gz
+
+      - name: Upload macOS archive
+        if: matrix.os == 'macos-latest'
+        uses: actions/upload-artifact@v4
+        with:
+          name: rustapp-macos
+          path: rustapp-macos.zip
+
+      - name: Upload Windows archive
+        if: matrix.os == 'windows-latest'
+        uses: actions/upload-artifact@v4
+        with:
+          name: rustapp-windows
+          path: rustapp-windows.zip
 
   release:
     name: Release for ${{ matrix.os }}
@@ -89,10 +106,15 @@ jobs:
           VERSION: "${{ needs.get-version.outputs.version }}"
           REPO: "${{ github.repository }}"
           COMMIT: "${{ github.sha }}"
-          GH_TOKEN: "${{ secrets.GITHUB_TOKEN }}"
+          GH_TOKEN: "${{ github.token }}"
         run: |
           if [ "${{ needs.get-version.outputs.is-prereleas }}" == "true" ]; then
             gh prerelease create --repo $REPO --target $COMMIT -F changelog.txt $VERSION rustapp-linux.tar.gz rustapp-macos.zip rustapp-windows.zip
           else 
             gh release create --repo $REPO --target $COMMIT -F changelog.txt $VERSION rustapp-linux.tar.gz rustapp-macos.zip rustapp-windows.zip
           fi
+
+
+
+
+          
