@@ -80,25 +80,15 @@ jobs:
             rustapp-macos.zip
 
   release:
-    name: Release
-    runs-on: ubuntu-latest
+    name: Release for ${{ matrix.os }}
+    runs-on: ${{ matrix.os }}
     needs: [get-version, setup-rust, build-and-zip]
     steps:
-      - name: Download Linux zip
+      - name: Download zip
         uses: actions/download-artifact@v4.1.8
         with:
           name: rustapp-ubuntu-latest
-          path: ./linux/
-      - name: Download Windows zip
-        uses: actions/download-artifact@v4.1.8
-        with:
-          name: rustapp-windows-latest
-          path: ./windows/
-      - name: Download macOS zip
-        uses: actions/download-artifact@v4.1.8
-        with:
-          name: rustapp-macos-latest
-          path: ./macos/
+          path: ./${{ matrix.os }}/
       - name: Print version
         run: |
           echo "Changelogs: ${{ needs.get-version.outputs.changelogs }}" > changelog.txt
@@ -114,3 +104,8 @@ jobs:
           else 
             gh release create --repo $REPO --target $COMMIT -F changelog.txt $VERSION rustapp-ubuntu-latest.zip rustapp-windows-latest.zip rustapp-macos-latest.zip
           fi
+
+
+
+
+
